@@ -322,7 +322,7 @@ fun DeepLineApp(onThemeChange: (Color) -> Unit = {}) {
                     onPickAvatar={selectedImageTarget="personaAvatar";imagePicker.launch("image/*")},error=error,onBack={page="home"},onCreate={createPersona()})
                 "chat" -> {
                     val p=findPersona(currentId)
-                    if(p==null) { page="home" } else ChatScreen(p=p,revision=revisionSnapshot,myName=myName,myAvatar=data.optString("myAvatar"),composer=composer,onComposer={composer=it;lastInteractionAt=System.currentTimeMillis()},busy=busy,error=error,backgroundUri=data.optString("background"),bubbleBackgroundUri=bubbleBackgroundUri,glassUi=glassUi,bubbleHex=bubbleHex,myBubbleHex=myBubbleHex,bubbleShape=bubbleShape,backgroundAlpha=backgroundAlpha,inputHint=inputHint,onBack={page="home"},onQuote={quote -> composer=quote},onDeleteMessage={index -> val messages=p.optJSONArray("messages") ?: JSONArray();messages.remove(index);persist()},onPickImage={selectedImageTarget="chatImage";imagePicker.launch("image/*")},onPickGif={gifPicker.launch("image/gif")},onSend={
+                    if(p==null) { page="home" } else ChatScreen(p=p,revision=revisionSnapshot,myName=myName,myAvatar=data.optString("myAvatar"),myTextColor=myTextColor,aiTextColor=aiTextColor,composer=composer,onComposer={composer=it;lastInteractionAt=System.currentTimeMillis()},busy=busy,error=error,backgroundUri=data.optString("background"),bubbleBackgroundUri=bubbleBackgroundUri,glassUi=glassUi,bubbleHex=bubbleHex,myBubbleHex=myBubbleHex,bubbleShape=bubbleShape,backgroundAlpha=backgroundAlpha,inputHint=inputHint,onBack={page="home"},onQuote={quote -> composer=quote},onDeleteMessage={index -> val messages=p.optJSONArray("messages") ?: JSONArray();messages.remove(index);persist()},onPickImage={selectedImageTarget="chatImage";imagePicker.launch("image/*")},onPickGif={gifPicker.launch("image/gif")},onSend={
                         val msg=composer.trim()
                         lastInteractionAt=System.currentTimeMillis()
                         if(msg.isNotEmpty()) {
@@ -682,7 +682,7 @@ private fun loadLocalBitmap(context: android.content.Context, value: String) = t
 }
 
 @OptIn(ExperimentalFoundationApi::class)
-@Composable fun ChatScreen(p:JSONObject,revision:Int,myName:String,myAvatar:String,composer:String,onComposer:(String)->Unit,busy:Boolean,error:String,backgroundUri:String,bubbleBackgroundUri:String,glassUi:Boolean,bubbleHex:String,myBubbleHex:String,bubbleShape:String,backgroundAlpha:Float,inputHint:String,onBack:()->Unit,onQuote:(String)->Unit,onDeleteMessage:(Int)->Unit,onPickImage:()->Unit,onPickGif:()->Unit,onSend:()->Unit){
+@Composable fun ChatScreen(p:JSONObject,revision:Int,myName:String,myAvatar:String,myTextColor:String,aiTextColor:String,composer:String,onComposer:(String)->Unit,busy:Boolean,error:String,backgroundUri:String,bubbleBackgroundUri:String,glassUi:Boolean,bubbleHex:String,myBubbleHex:String,bubbleShape:String,backgroundAlpha:Float,inputHint:String,onBack:()->Unit,onQuote:(String)->Unit,onDeleteMessage:(Int)->Unit,onPickImage:()->Unit,onPickGif:()->Unit,onSend:()->Unit){
     val arr=p.optJSONArray("messages")?:JSONArray()
     val listState = rememberLazyListState()
     val clipboard = LocalClipboardManager.current
@@ -713,7 +713,7 @@ private fun loadLocalBitmap(context: android.content.Context, value: String) = t
                                             val gifLoader = remember(context) { ImageLoader.Builder(context).components { if (Build.VERSION.SDK_INT >= 28) add(ImageDecoderDecoder.Factory()) else add(GifDecoder.Factory()) }.build() }
                                             AsyncImage(model=ImageRequest.Builder(context).data(Uri.parse(gifPath)).crossfade(true).build(),imageLoader=gifLoader,contentDescription="GIF 表情包",modifier=Modifier.widthIn(max=220.dp).heightIn(max=220.dp).clip(RoundedCornerShape(12.dp)),contentScale=ContentScale.Fit)
                                             Text("GIF 表情包",fontSize=10.sp,color=Muted,modifier=Modifier.padding(top=3.dp))
-                                        } else Text(rawContent,fontSize=14.sp,color=try { Color(android.graphics.Color.parseColor(data.optString(if (user) "myTextColor" else "aiTextColor", if (user) "#243047" else "#263247"))) } catch (_:Exception) { Ink })
+                                        } else Text(rawContent,fontSize=14.sp,color=try { Color(android.graphics.Color.parseColor(if (user) myTextColor else aiTextColor)) } catch (_:Exception) { Ink })
                                     }
                                     DropdownMenu(expanded=menuOpen,onDismissRequest={menuOpen=false}) {
                                         DropdownMenuItem(text={Text("复制")},leadingIcon={Icon(Icons.Default.ContentCopy,null)},onClick={clipboard.setText(AnnotatedString(m.optString("content")));menuOpen=false})
