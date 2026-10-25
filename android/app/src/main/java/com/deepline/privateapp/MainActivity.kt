@@ -713,7 +713,7 @@ private fun loadLocalBitmap(context: android.content.Context, value: String) = t
                                             val gifLoader = remember(context) { ImageLoader.Builder(context).components { if (Build.VERSION.SDK_INT >= 28) add(ImageDecoderDecoder.Factory()) else add(GifDecoder.Factory()) }.build() }
                                             AsyncImage(model=ImageRequest.Builder(context).data(Uri.parse(gifPath)).crossfade(true).build(),imageLoader=gifLoader,contentDescription="GIF 表情包",modifier=Modifier.widthIn(max=220.dp).heightIn(max=220.dp).clip(RoundedCornerShape(12.dp)),contentScale=ContentScale.Fit)
                                             Text("GIF 表情包",fontSize=10.sp,color=Muted,modifier=Modifier.padding(top=3.dp))
-                                        } else Text(rawContent,fontSize=14.sp,color=try { Color(android.graphics.Color.parseColor(if(user) myTextColor else aiTextColor)) } catch (_:Exception) { Ink })
+                                        } else Text(rawContent,fontSize=14.sp,color=try { Color(android.graphics.Color.parseColor(data.optString(if (user) "myTextColor" else "aiTextColor", if (user) "#243047" else "#263247"))) } catch (_:Exception) { Ink })
                                     }
                                     DropdownMenu(expanded=menuOpen,onDismissRequest={menuOpen=false}) {
                                         DropdownMenuItem(text={Text("复制")},leadingIcon={Icon(Icons.Default.ContentCopy,null)},onClick={clipboard.setText(AnnotatedString(m.optString("content")));menuOpen=false})
